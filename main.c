@@ -72,6 +72,23 @@ int main(int argc, char* argv[]){
 
     draw_grid(surface, rows, cols, CELL_WIDTH, COLOR_GREEN_DARK);
 
+
+    int simulation_loop = 1;
+    SDL_Event event;
+    while (simulation_loop){
+        while (SDL_PollEvent(&event)){
+            if (event.type == SDL_QUIT){
+                simulation_loop = 0;
+            }
+        }
+
+        init_game_matrix(rows, cols, game_matrix);
+        draw_game_matrix(surface, rows, cols, game_matrix, COLOR_GREEN, COLOR_BLACK);
+        draw_grid(surface, rows, cols, CELL_WIDTH, COLOR_GREEN_DARK);
+        SDL_UpdateWindowSurface(window);
+        SDL_Delay(100);
+    }
+
     SDL_UpdateWindowSurface(window);
     SDL_Delay(5000);
     SDL_Quit();
