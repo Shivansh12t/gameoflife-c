@@ -86,7 +86,7 @@ int main(int argc, char* argv[]){
         draw_game_matrix(surface, rows, cols, game_matrix, COLOR_GREEN, COLOR_BLACK);
         draw_grid(surface, rows, cols, CELL_WIDTH, COLOR_GREEN_DARK);
         SDL_UpdateWindowSurface(window);
-        SDL_Delay(100);
+        SDL_Delay(200);
     }
 
     SDL_UpdateWindowSurface(window);
