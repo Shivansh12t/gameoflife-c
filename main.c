@@ -2,10 +2,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
+#include <time.h>
 
 #define W_WIDTH 900
 #define W_HEIGHT 600
-#define CELL_WIDTH 30
+#define CELL_WIDTH 15
 #define LINE_WIDTH 2
 
 #define COLOR_GREEN 0x39ff14
@@ -36,9 +37,10 @@ void draw_cell(SDL_Surface* surface, int cell_x, int cell_y, Uint32 color){
 }
 
 void init_game_matrix(int rows, int cols, int game_matrix[]){
+    
     for (int i = 0; i < rows; i++){
         for (int j = 0; j < cols; j++){
-            game_matrix[i*cols + j] = rand() % 2;
+            game_matrix[i*cols + j] = rand() > RAND_MAX * 7.0 / 10.0;
         }
     }
 }
@@ -81,27 +83,34 @@ int count_ns(int i, int j, int rows, int cols, int game_matrix[]){
 
     // down right neighbour
     if (i < rows - 1 && j < cols - 1) n_counter += game_matrix[j + 1 + cols * (i + 1)];
-
     return n_counter;
 }
 
 void simulation_step(int rows, int cols, int game_matrix[]){
+    int next_game_matrix[rows*cols];
+
     for (int i = 0; i < rows; i++){
         for (int j = 0; j < cols; j++){
             int n_count = count_ns(i, j, rows, cols, game_matrix);
             int curr_cell_value = game_matrix[j + cols * i];
 
             // perform logic
-            if      (curr_cell_value != 0 && n_count < 2) game_matrix[j + cols * i] = 0;
-            else if (curr_cell_value != 0 && (n_count == 2 || n_count == 3)) continue;
-            else if (curr_cell_value != 0 && n_count > 3) game_matrix[j + cols * i] = 0;
-            else if (curr_cell_value == 0 && n_count == 3) game_matrix[j + cols * i] = 1;
+            if      (curr_cell_value != 0 && n_count < 2) next_game_matrix[j + cols * i] = 0;
+            else if (curr_cell_value != 0 && (n_count == 2 || n_count == 3)) next_game_matrix[j + cols * i] = 1;
+            else if (curr_cell_value != 0 && n_count > 3) next_game_matrix[j + cols * i] = 0;
+            else if (curr_cell_value == 0 && n_count == 3) next_game_matrix[j + cols * i] = 1;
+            else next_game_matrix[j + cols * i] = 0;
         }
+    }
+
+    for (int i = 0; i < rows * cols; i++){
+        game_matrix[i] = next_game_matrix[i];
     }
 }
 
 int main(int argc, char* argv[]){
     SDL_Init(SDL_INIT_VIDEO);
+    srand(time(NULL)); // seeding the rand
 
     SDL_Window* window = SDL_CreateWindow("conway's game of life in C", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, W_WIDTH, W_HEIGHT, 0);
     SDL_Surface* surface = SDL_GetWindowSurface(window);
@@ -131,7 +140,7 @@ int main(int argc, char* argv[]){
         draw_game_matrix(surface, rows, cols, game_matrix, COLOR_GREEN, COLOR_BLACK);
         draw_grid(surface, rows, cols, CELL_WIDTH, COLOR_GREEN_DARK);
         SDL_UpdateWindowSurface(window);
-        SDL_Delay(50);
+        SDL_Delay(100);
     }
 
     SDL_UpdateWindowSurface(window);
