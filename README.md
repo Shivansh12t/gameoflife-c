@@ -48,7 +48,7 @@ This simple set of rules can produce surprisingly complex and lifelike behaviors
 ## **Demonstration**   
 
 1. **Simulation in Progress**  
-   ![Simulation](./screenshots/recording.mp4)  
+   [![Simulation](./screenshots/thumbnail.png)](./screenshots/recording.mp4)
 
 ---
 
