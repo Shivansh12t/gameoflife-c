@@ -55,6 +55,51 @@ void draw_game_matrix(SDL_Surface* surface, int rows, int cols, int game_matrix[
     }
 }
 
+int count_ns(int i, int j, int rows, int cols, int game_matrix[]){
+    int n_counter = 0;
+
+    // left hand neighbour
+    if (j > 0) n_counter += game_matrix[j - 1 + cols * i];
+
+    // right hand neighbour
+    if (j < cols - 1) n_counter += game_matrix[j + 1 + cols * i];
+
+    // top neighbour
+    if (i > 0) n_counter += game_matrix[j + cols * (i - 1)];
+
+    // top left neighbour
+    if (i > 0 && j > 0) n_counter += game_matrix[j - 1 + cols * (i - 1)];
+
+    // top right neighbour
+    if (i > 0 && j < cols - 1) n_counter += game_matrix[j + 1 + cols * (i - 1)];
+
+    // down neighbour
+    if (i < rows - 1) n_counter += game_matrix[j + cols * (i + 1)];
+
+    // down left neighbour
+    if (i < rows - 1 && j > 0) n_counter += game_matrix[j - 1 + cols * (i + 1)];
+
+    // down right neighbour
+    if (i < rows - 1 && j < cols - 1) n_counter += game_matrix[j + 1 + cols * (i + 1)];
+
+    return n_counter;
+}
+
+void simulation_step(int rows, int cols, int game_matrix[]){
+    for (int i = 0; i < rows; i++){
+        for (int j = 0; j < cols; j++){
+            int n_count = count_ns(i, j, rows, cols, game_matrix);
+            int curr_cell_value = game_matrix[j + cols * i];
+
+            // perform logic
+            if      (curr_cell_value != 0 && n_count < 2) game_matrix[j + cols * i] = 0;
+            else if (curr_cell_value != 0 && (n_count == 2 || n_count == 3)) continue;
+            else if (curr_cell_value != 0 && n_count > 3) game_matrix[j + cols * i] = 0;
+            else if (curr_cell_value == 0 && n_count == 3) game_matrix[j + cols * i] = 1;
+        }
+    }
+}
+
 int main(int argc, char* argv[]){
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -71,6 +116,7 @@ int main(int argc, char* argv[]){
     draw_game_matrix(surface, rows, cols, game_matrix, COLOR_GREEN, COLOR_BLACK);
 
     draw_grid(surface, rows, cols, CELL_WIDTH, COLOR_GREEN_DARK);
+    init_game_matrix(rows, cols, game_matrix);
 
 
     int simulation_loop = 1;
@@ -81,12 +127,11 @@ int main(int argc, char* argv[]){
                 simulation_loop = 0;
             }
         }
-
-        init_game_matrix(rows, cols, game_matrix);
+        simulation_step(rows, cols, game_matrix);
         draw_game_matrix(surface, rows, cols, game_matrix, COLOR_GREEN, COLOR_BLACK);
         draw_grid(surface, rows, cols, CELL_WIDTH, COLOR_GREEN_DARK);
         SDL_UpdateWindowSurface(window);
-        SDL_Delay(200);
+        SDL_Delay(50);
     }
 
     SDL_UpdateWindowSurface(window);
@@ -94,3 +139,5 @@ int main(int argc, char* argv[]){
     SDL_Quit();
     return 0;
 }
+
+
